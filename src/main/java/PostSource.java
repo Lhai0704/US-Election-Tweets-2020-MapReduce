@@ -13,16 +13,16 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-// 发布时间统计
+// 发布平台统计
 
 
-public class Created_time {
+public class PostSource {
 
 
     public static class CreatedTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
-        private Text created_time = new Text();
+        private Text source = new Text();
 
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -30,9 +30,9 @@ public class Created_time {
             Pattern p = Pattern.compile(regex);
             String[] data = p.split(value.toString());
 
-            String time = data[0].substring(0, 10);
-            created_time.set(time);
-            context.write(created_time, one);
+            String time = data[4];
+            source.set(time);
+            context.write(source, one);
         }
     }
 
@@ -50,9 +50,9 @@ public class Created_time {
                 sum += val.get();
             }
 
-//            { value: ["1997-10-1", 684]},
+//            { "value": ["Twitter Web App", 684]},
 
-            data.set("{ value: [\"" + key.toString() + "\", " + sum + "]},");
+            data.set("{ \"value\": [\"" + key.toString() + "\", " + sum + "]},");
 
             context.write(data, NullWritable.get());
         }
@@ -61,7 +61,7 @@ public class Created_time {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
 
-        Job job = Job.getInstance(conf, "Created_time");
+        Job job = Job.getInstance(conf, "PostSource");
 
 
         job.setJarByClass(Created_time.class);

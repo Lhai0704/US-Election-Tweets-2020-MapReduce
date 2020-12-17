@@ -13,15 +13,15 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-// 发布时间统计
+// 每日转发数
 
 
-public class Created_time {
+public class DailyRetweet {
 
 
     public static class CreatedTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
 
-        private final static IntWritable one = new IntWritable(1);
+        private final static IntWritable likes = new IntWritable();
         private Text created_time = new Text();
 
         @Override
@@ -31,8 +31,9 @@ public class Created_time {
             String[] data = p.split(value.toString());
 
             String time = data[0].substring(0, 10);
+            likes.set((int) Double.parseDouble(data[3]));
             created_time.set(time);
-            context.write(created_time, one);
+            context.write(created_time, likes);
         }
     }
 
@@ -50,9 +51,9 @@ public class Created_time {
                 sum += val.get();
             }
 
-//            { value: ["1997-10-1", 684]},
+//            { "value": ["1997-10-1", 684]},
 
-            data.set("{ value: [\"" + key.toString() + "\", " + sum + "]},");
+            data.set("{ \"value\": [\"" + key.toString() + "\", " + sum + "]},");
 
             context.write(data, NullWritable.get());
         }
@@ -61,10 +62,10 @@ public class Created_time {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
 
-        Job job = Job.getInstance(conf, "Created_time");
+        Job job = Job.getInstance(conf, "DailyLikes");
 
 
-        job.setJarByClass(Created_time.class);
+        job.setJarByClass(DailyRetweet.class);
 
         job.setMapperClass(CreatedTimeMapper.class);
 //        job.setCombinerClass(CreatedTimeReducer.class);
