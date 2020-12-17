@@ -12,18 +12,15 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-// 发布时间统计
-// 输出json文件，格式如下：
-// { value: ["1997-10-1", 684]},
+// 推文词频
+
+public class WordCount {
 
 
-public class Created_time {
-
-
-    public static class CreatedTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class WordCountMapper extends Mapper<Object, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
-        private Text created_time = new Text();
+        private Text text = new Text();
 
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -32,17 +29,20 @@ public class Created_time {
             Pattern p = Pattern.compile(regex);
             String[] data = p.split(value.toString());
 
-            // 切分子字符串，data[0]为2020-10-20 00:32:50
-            String time = data[0].substring(0, 10);
+            String[] words = data[19].substring(2, data[19].length() - 2).split(", ");
 
-            created_time.set(time);
-            context.write(created_time, one);
+            for (String word:
+                 words) {
+                text.set(word);
+//                System.out.println(text.toString());
+                context.write(text, one);
+            }
         }
     }
 
-    public static class CreatedTimeReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
+    public static class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-        Text data = new Text();
+        IntWritable result = new IntWritable();
 
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -51,29 +51,28 @@ public class Created_time {
             for(IntWritable val : values) {
                 sum += val.get();
             }
+            result.set(sum);
 
-            // 输出json文件的一行
-            data.set("{ value: [\"" + key.toString() + "\", " + sum + "]},");
-
-            context.write(data, NullWritable.get());
+            System.out.println(key.toString());
+            context.write(key, result);
         }
     }
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
 
-        Job job = Job.getInstance(conf, "Created_time");
+        Job job = Job.getInstance(conf, "WordCount");
 
         job.setJarByClass(Created_time.class);
 
-        job.setMapperClass(CreatedTimeMapper.class);
-        job.setReducerClass(CreatedTimeReducer.class);
+        job.setMapperClass(WordCountMapper.class);
+        job.setReducerClass(WordCountReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
 
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(NullWritable.class);
+        job.setOutputValueClass(IntWritable.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));

@@ -8,11 +8,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
+
+// 提取经纬度，输出为json文件
+// {"lat":-0.0101331,"lng":51.4624325,"count":34},
 
 public class Lat_Lng_HeatMap {
 
@@ -52,7 +53,7 @@ public class Lat_Lng_HeatMap {
             }
 //            result.set(sum);
 
-//            {"lat":-0.0101331,"lng":51.4624325,"count":34},
+//
             data.set("{\"lat\":" + latlng[1] + ",\"lng\":" + latlng[0] + ",\"count\":" + sum + "},");
 
 //            try {
