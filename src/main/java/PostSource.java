@@ -36,11 +36,11 @@ public class PostSource {
         }
     }
 
-    public static class CreatedTimeReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
+    public static class CreatedTimeReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-//        private IntWritable result = new IntWritable();
+        private IntWritable result = new IntWritable();
 
-        Text data = new Text();
+//        Text data = new Text();
 
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -49,12 +49,9 @@ public class PostSource {
             for(IntWritable val : values) {
                 sum += val.get();
             }
+            result.set(sum);
 
-//            { "value": ["Twitter Web App", 684]},
-
-            data.set("{ \"value\": [\"" + key.toString() + "\", " + sum + "]},");
-
-            context.write(data, NullWritable.get());
+            context.write(key, result);
         }
     }
 
@@ -74,7 +71,7 @@ public class PostSource {
         job.setMapOutputValueClass(IntWritable.class);
 
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(NullWritable.class);
+        job.setOutputValueClass(IntWritable.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));

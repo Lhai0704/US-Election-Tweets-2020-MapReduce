@@ -28,15 +28,16 @@ public class WordCount {
             String regex = ",(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))";
             Pattern p = Pattern.compile(regex);
             String[] data = p.split(value.toString());
+            if (data[17].length() > 4) {
+                String[] words = data[17].substring(2, data[17].length() - 2).split(", ");
 
-            String[] words = data[19].substring(2, data[19].length() - 2).split(", ");
-
-            for (String word:
-                 words) {
-                text.set(word);
-//                System.out.println(text.toString());
-                context.write(text, one);
+                for (String word:
+                        words) {
+                    text.set(word);
+                    context.write(text, one);
+                }
             }
+
         }
     }
 
@@ -53,7 +54,7 @@ public class WordCount {
             }
             result.set(sum);
 
-            System.out.println(key.toString());
+//            System.out.println(key.toString());
             context.write(key, result);
         }
     }

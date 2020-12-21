@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-public class WordCountTop100 {
+public class PostSourceTop10 {
 
-    public static final int K = 100;
+    public static final int K = 10;
 
     public static class MyIntWritable extends IntWritable {
 
@@ -44,6 +44,7 @@ public class WordCountTop100 {
             String[] data = value.toString().split("\t");
 
             text.set(data[0]);
+//            System.out.println(data[0]);
 
             context.write(new MyIntWritable(Integer.parseInt(data[1])), text);
 
@@ -63,8 +64,8 @@ public class WordCountTop100 {
             for (Text text : values) {
                 if (num < K) {
                     str = text.toString();
-                    // { name: "aa", value: 123},
-                    context.write(new Text("{ name: \"" + str.substring(1, str.length() - 1) + "\", value: " + key.get() + "},"), NullWritable.get());
+                    // { value: 123, name: "aa"},
+                    context.write(new Text("{ value: " + key.get() + ", name: \"" + str + "\"},"), NullWritable.get());
                 }
                 num++;
             }
