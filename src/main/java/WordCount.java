@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 public class WordCount {
 
-
     public static class WordCountMapper extends Mapper<Object, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
@@ -54,7 +53,6 @@ public class WordCount {
             }
             result.set(sum);
 
-//            System.out.println(key.toString());
             context.write(key, result);
         }
     }

@@ -12,7 +12,7 @@ public class RegexText {
 //        String tmp1 = data[11];
 //        String tmp2 = data[12];
 
-        System.out.println(data[17].substring(2, data[17].length() - 2));
+        System.out.println(!"".equals(data[15]));
 
     }
 }

@@ -21,26 +21,9 @@ import java.util.regex.Pattern;
 
 public class RetweetMax {
 
-    public static final int K = 1;
-
-    public static class MyIntWritable extends IntWritable {
-
-        public MyIntWritable() {
-        }
-
-        public MyIntWritable(int value) {
-            super(value);
-        }
-
-        @Override
-        public int compareTo(IntWritable o) {
-            return -super.compareTo(o);  //重写IntWritable排序方法，默认是升序 ，
-        }
-    }
-
+    private static final int K = 1;
 
     public static class RetweetMapper extends Mapper<LongWritable, Text, MyIntWritable, Text> {
-
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -49,13 +32,10 @@ public class RetweetMax {
             String[] data = p.split(value.toString());
 
             int retweet_count = (int) Double.parseDouble(data[3]);
-//            System.out.println(retweet_count);
 
             context.write(new MyIntWritable(retweet_count), new Text(data[1]));
 
         }
-
-
     }
 
     public static class RetweetReducer extends Reducer<MyIntWritable, Text, Text, MyIntWritable> {
@@ -86,15 +66,12 @@ public class RetweetMax {
 
 
         job.setMapperClass(RetweetMapper.class);
-
         job.setReducerClass(RetweetReducer.class);
 
         job.setMapOutputKeyClass(MyIntWritable.class);
-
         job.setMapOutputValueClass(Text.class);
 
         job.setOutputKeyClass(Text.class);
-
         job.setOutputValueClass(MyIntWritable.class);
 
         FileInputFormat.setInputPaths(job, new Path(args[0]));

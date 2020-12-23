@@ -1,13 +1,11 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
@@ -18,8 +16,7 @@ import java.util.regex.Pattern;
 
 public class PostSource {
 
-
-    public static class CreatedTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class PostSourceMapper extends Mapper<Object, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
         private Text source = new Text();
@@ -36,11 +33,9 @@ public class PostSource {
         }
     }
 
-    public static class CreatedTimeReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class PostSourceReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
         private IntWritable result = new IntWritable();
-
-//        Text data = new Text();
 
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -63,9 +58,8 @@ public class PostSource {
 
         job.setJarByClass(Created_time.class);
 
-        job.setMapperClass(CreatedTimeMapper.class);
-//        job.setCombinerClass(CreatedTimeReducer.class);
-        job.setReducerClass(CreatedTimeReducer.class);
+        job.setMapperClass(PostSourceMapper.class);
+        job.setReducerClass(PostSourceReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

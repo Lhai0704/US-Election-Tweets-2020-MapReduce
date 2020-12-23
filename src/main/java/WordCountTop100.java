@@ -8,31 +8,13 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
+
+// 推文词频Top100
 
 public class WordCountTop100 {
 
-    public static final int K = 100;
-
-    public static class MyIntWritable extends IntWritable {
-
-        public MyIntWritable() {
-        }
-
-        public MyIntWritable(int value) {
-            super(value);
-        }
-
-        @Override
-        public int compareTo(IntWritable o) {
-            return -super.compareTo(o);  //重写IntWritable排序方法，默认是升序 ，
-        }
-    }
-
+    private static final int K = 100;
 
     public static class MyMapper extends Mapper<LongWritable, Text, MyIntWritable, Text> {
 
@@ -46,10 +28,7 @@ public class WordCountTop100 {
             text.set(data[0]);
 
             context.write(new MyIntWritable(Integer.parseInt(data[1])), text);
-
         }
-
-
     }
 
     public static class MyReducer extends Reducer<MyIntWritable, Text, Text, NullWritable> {
@@ -63,8 +42,8 @@ public class WordCountTop100 {
             for (Text text : values) {
                 if (num < K) {
                     str = text.toString();
-                    // { name: "aa", value: 123},
-                    context.write(new Text("{ name: \"" + str.substring(1, str.length() - 1) + "\", value: " + key.get() + "},"), NullWritable.get());
+                    // { "name": "aa", "value": 123},
+                    context.write(new Text("{ \"name\": \"" + str.substring(1, str.length() - 1) + "\", \"value\": " + key.get() + "},"), NullWritable.get());
                 }
                 num++;
             }

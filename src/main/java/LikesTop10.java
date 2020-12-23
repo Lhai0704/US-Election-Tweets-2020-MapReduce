@@ -1,44 +1,25 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
+
+// TopN
+// 重写IntWritable的compareTo方法，使排序为降序
 
 public class LikesTop10 {
 
-    public static final int K = 10;
-
-    public static class MyIntWritable extends IntWritable {
-
-        public MyIntWritable() {
-        }
-
-        public MyIntWritable(int value) {
-            super(value);
-        }
-
-        @Override
-        public int compareTo(IntWritable o) {
-            return -super.compareTo(o);  //重写IntWritable排序方法，默认是升序 ，
-        }
-    }
-
+    private static final int K = 10;
 
     public static class MyMapper extends Mapper<LongWritable, Text, MyIntWritable, Text> {
-
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -51,8 +32,6 @@ public class LikesTop10 {
             context.write(new MyIntWritable(likes), new Text(data[1]));
 
         }
-
-
     }
 
     public static class MyReducer extends Reducer<MyIntWritable, Text, Text, MyIntWritable> {
@@ -73,25 +52,19 @@ public class LikesTop10 {
 
     public static void main(String[] args) throws Exception {
 
-
         Configuration conf = new Configuration();
-
 
         Job job = Job.getInstance(conf);
 
         job.setJarByClass(LikesTop10.class);
 
-
         job.setMapperClass(MyMapper.class);
-
         job.setReducerClass(MyReducer.class);
 
         job.setMapOutputKeyClass(MyIntWritable.class);
-
         job.setMapOutputValueClass(Text.class);
 
         job.setOutputKeyClass(Text.class);
-
         job.setOutputValueClass(MyIntWritable.class);
 
         FileInputFormat.setInputPaths(job, new Path(args[0]));

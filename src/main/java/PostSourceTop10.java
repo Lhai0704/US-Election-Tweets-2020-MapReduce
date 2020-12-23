@@ -8,30 +8,13 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
+
+// 发布平台Top10
 
 public class PostSourceTop10 {
 
-    public static final int K = 10;
-
-    public static class MyIntWritable extends IntWritable {
-
-        public MyIntWritable() {
-        }
-
-        public MyIntWritable(int value) {
-            super(value);
-        }
-
-        @Override
-        public int compareTo(IntWritable o) {
-            return -super.compareTo(o);  //重写IntWritable排序方法，默认是升序 ，
-        }
-    }
+    private static final int K = 10;
 
 
     public static class MyMapper extends Mapper<LongWritable, Text, MyIntWritable, Text> {
@@ -44,13 +27,10 @@ public class PostSourceTop10 {
             String[] data = value.toString().split("\t");
 
             text.set(data[0]);
-//            System.out.println(data[0]);
 
             context.write(new MyIntWritable(Integer.parseInt(data[1])), text);
 
         }
-
-
     }
 
     public static class MyReducer extends Reducer<MyIntWritable, Text, Text, NullWritable> {
@@ -74,9 +54,7 @@ public class PostSourceTop10 {
 
     public static void main(String[] args) throws Exception {
 
-
         Configuration conf = new Configuration();
-
 
         Job job = Job.getInstance(conf);
 
@@ -84,15 +62,12 @@ public class PostSourceTop10 {
 
 
         job.setMapperClass(MyMapper.class);
-
         job.setReducerClass(MyReducer.class);
 
         job.setMapOutputKeyClass(MyIntWritable.class);
-
         job.setMapOutputValueClass(Text.class);
 
         job.setOutputKeyClass(Text.class);
-
         job.setOutputValueClass(NullWritable.class);
 
         FileInputFormat.setInputPaths(job, new Path(args[0]));

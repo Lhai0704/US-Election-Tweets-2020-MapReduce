@@ -8,15 +8,13 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class TweetsCountByStates {
 
-    public static class HeatMapMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class TweetsCountByStatesMapper extends Mapper<Object, Text, Text, IntWritable> {
         private final static IntWritable one = new IntWritable(1);
         private Text state = new Text();
 
@@ -26,16 +24,14 @@ public class TweetsCountByStates {
             Pattern p = Pattern.compile(regex);
             String[] data = p.split(value.toString());
 
-            if("".equals(data[15])) {
-
-            }else {
+            if(!"".equals(data[15])) {
                 state.set(data[15]);
                 context.write(state, one);
             }
         }
     }
 
-    public static class HeatMapReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
+    public static class TweetsCountByStatesReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
 
         Text data = new Text();
 
@@ -62,9 +58,8 @@ public class TweetsCountByStates {
 
         job.setJarByClass(TweetsCountByStates.class);
 
-        job.setMapperClass(HeatMapMapper.class);
-//        job.setCombinerClass(HeatMapReducer.class);
-        job.setReducerClass(HeatMapReducer.class);
+        job.setMapperClass(TweetsCountByStatesMapper.class);
+        job.setReducerClass(TweetsCountByStatesReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

@@ -7,19 +7,18 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-// 每日转发数
+// 每日转发数（类似每日点赞数）
 
 
 public class DailyRetweet {
 
 
-    public static class CreatedTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class DailyRetweetMapper extends Mapper<Object, Text, Text, IntWritable> {
 
         private final static IntWritable likes = new IntWritable();
         private Text created_time = new Text();
@@ -37,9 +36,7 @@ public class DailyRetweet {
         }
     }
 
-    public static class CreatedTimeReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
-
-//        private IntWritable result = new IntWritable();
+    public static class DailyRetweetReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
 
         Text data = new Text();
 
@@ -67,9 +64,8 @@ public class DailyRetweet {
 
         job.setJarByClass(DailyRetweet.class);
 
-        job.setMapperClass(CreatedTimeMapper.class);
-//        job.setCombinerClass(CreatedTimeReducer.class);
-        job.setReducerClass(CreatedTimeReducer.class);
+        job.setMapperClass(DailyRetweetMapper.class);
+        job.setReducerClass(DailyRetweetReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

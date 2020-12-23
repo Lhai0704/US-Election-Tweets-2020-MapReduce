@@ -27,13 +27,8 @@ public class Lat_Lng_HeatMap {
             Pattern p = Pattern.compile(regex);
             String[] data = p.split(value.toString());
 
-//            String lat = data[12];
-//            String lng = data[11];
-            if("".equals(data[11])) {
-
-            }else {
+            if(!"".equals(data[11])) {
                 lat_lng.set(data[11] + "," + data[10]);
-//                System.out.println(lat_lng.toString());
                 context.write(lat_lng, one);
             }
         }
@@ -41,7 +36,6 @@ public class Lat_Lng_HeatMap {
 
     public static class HeatMapReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
 
-//        private IntWritable result = new IntWritable();
         Text data = new Text();
 
         @Override
@@ -51,18 +45,8 @@ public class Lat_Lng_HeatMap {
             for(IntWritable val : values) {
                 sum += val.get();
             }
-//            result.set(sum);
 
-//
             data.set("{\"lat\":" + latlng[1] + ",\"lng\":" + latlng[0] + ",\"count\":" + sum + "},");
-
-//            try {
-//                jsonObject.put("lat", Double.parseDouble(latlng[0]));
-//                jsonObject.put("lng", Double.parseDouble(latlng[1]));
-//                jsonObject.put("count", result.get());
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
 
             context.write(data, NullWritable.get());
         }
@@ -75,7 +59,6 @@ public class Lat_Lng_HeatMap {
         job.setJarByClass(Lat_Lng_HeatMap.class);
 
         job.setMapperClass(HeatMapMapper.class);
-//        job.setCombinerClass(HeatMapReducer.class);
         job.setReducerClass(HeatMapReducer.class);
 
         job.setMapOutputKeyClass(Text.class);

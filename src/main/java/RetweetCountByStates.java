@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 public class RetweetCountByStates {
 
-    public static class HeatMapMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class RetweetCountByStatesMapper extends Mapper<Object, Text, Text, IntWritable> {
         private final static IntWritable retweet = new IntWritable();
         private Text state = new Text();
 
@@ -26,17 +26,17 @@ public class RetweetCountByStates {
             Pattern p = Pattern.compile(regex);
             String[] data = p.split(value.toString());
 
-            retweet.set((int) Double.parseDouble(data[3]));
-            if("".equals(data[15])) {
-
-            }else {
+            if(!"".equals(data[3])){
+                retweet.set((int) Double.parseDouble(data[3]));
+            }
+            if(!"".equals(data[15])) {
                 state.set(data[15]);
                 context.write(state, retweet);
             }
         }
     }
 
-    public static class HeatMapReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
+    public static class RetweetCountByStatesReducer extends Reducer<Text, IntWritable, Text, NullWritable> {
 
         Text data = new Text();
 
@@ -49,9 +49,8 @@ public class RetweetCountByStates {
                 sum += val.get();
             }
 
-//            { "value": ["Florida", 168746]},
-            data.set("{ \"value\": [\"" + data.toString() + "\", " + sum + "]},");
-
+//            {"name": "aaa", "value": 123},
+            data.set("{\"name\": \"" + data.toString() + "\", \"value\": " + sum + "},");
 
             context.write(data, NullWritable.get());
         }
@@ -63,9 +62,8 @@ public class RetweetCountByStates {
 
         job.setJarByClass(RetweetCountByStates.class);
 
-        job.setMapperClass(HeatMapMapper.class);
-//        job.setCombinerClass(HeatMapReducer.class);
-        job.setReducerClass(HeatMapReducer.class);
+        job.setMapperClass(RetweetCountByStatesMapper.class);
+        job.setReducerClass(RetweetCountByStatesReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
